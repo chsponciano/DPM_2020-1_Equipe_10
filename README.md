@@ -1,4 +1,4 @@
-# Explorando a plataforma (equipe)
+# Explorando a plataforma (equipe 10)
 ```sh
 Crie projetos separados para cada atividade abaixo na plataforma escolhida. Estes projetos devem “realmente” 
 estar funcionando, sem alertas e erros de compilação/execução. Os projetos devem ser disponibilizados 

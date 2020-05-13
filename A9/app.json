@@ -1,0 +1,17 @@
+{
+  "name": "dpm-a11",
+  "displayName": "dpm-a11",
+  "expo": {
+    "name": "dpm-a11",
+    "slug": "dpm-a11",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}

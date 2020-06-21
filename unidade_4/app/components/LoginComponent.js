@@ -1,29 +1,13 @@
+import Geolocation from '@react-native-community/geolocation';
 import { Formik } from 'formik';
 import React, { Component } from 'react';
 import { Alert, AsyncStorage, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import BackgroundTask from 'react-native-background-task';
 import { connect } from 'react-redux';
 import { globalStyles } from '../styles/global.js';
-import { doPost } from '../utils/HttpUtils';
+import { doPost, doPostAuth } from '../utils/HttpUtils';
 import LoadingComponent from './LoadingComponent';
 
-
-BackgroundTask.define(async () => {
-  navigator.geolocation.getCurrentPosition(
-    async position => {
-      const currentLongitude = JSON.stringify(position.coords.longitude);
-      const currentLatitude = JSON.stringify(position.coords.latitude);
-      const response = await doPost({ longitude: currentLongitude, latitude: currentLatitude });
-      if (response.status !== 200) {
-        BackgroundTask.cancel();  
-      } else {
-        BackgroundTask.finish();
-      }
-    },
-    error => console.error(error),
-    { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-  );
-});
 
 export class LoginComponent extends Component {
   constructor(props) {
@@ -41,6 +25,17 @@ export class LoginComponent extends Component {
       if (body.success) {
         await AsyncStorage.setItem('token', body.token);
         this.props.login({ type: 'LOGIN' });
+        setInterval(() => {
+          Geolocation.getCurrentPosition(async info => {
+            const latitude = info.coords.latitude;
+            const longitude = info.coords.longitude;
+            try {
+              await doPostAuth('device/checkLocation', { longitude, latitude });
+            } catch (e) {
+              console.log(e);
+            }
+          });
+        }, 60000);
       } else {
         Alert.alert('Falha ao realizar login', 'Usuário e/ou senha inválidos!');
       }

@@ -22,7 +22,7 @@ export class RouterApp extends Component {
   }
 
   render() {
-    return this.state.loading ? this.renderLoading : !this.props.loggedIn ? this.renderMainStack() : this.renderLoginStack();
+    return this.state.loading ? this.renderLoading : this.props.loggedIn ? this.renderMainStack() : this.renderLoginStack();
   }
 
   renderLoading() {

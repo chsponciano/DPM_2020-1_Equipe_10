@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import br.com.furb.dpm.dpmunidade04.document.UserDocument;
+import br.com.furb.dpm.dpmunidade04.dto.PostUserDTO;
 import br.com.furb.dpm.dpmunidade04.dto.UserDTO;
 
 @RequestMapping("/user")
@@ -25,9 +26,9 @@ public interface UserController {
     /**
      * Path usado para cadastrar um usuário na base
      *
-     * @param userDTO dto contendo os dados que serão cadastrados
+     * @param postUserDTO dto contendo os dados que serão cadastrados
      * @return o documento referente ao usuário cadastrado
      */
     @PostMapping
-    ResponseEntity<UserDocument> postUser(@RequestBody UserDTO userDTO);
+    ResponseEntity<UserDTO> postUser(@RequestBody PostUserDTO postUserDTO);
 }

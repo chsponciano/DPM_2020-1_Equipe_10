@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.furb.dpm.dpmunidade04.controller.security.SecurityController;
 import br.com.furb.dpm.dpmunidade04.document.UserDocument;
+import br.com.furb.dpm.dpmunidade04.dto.PostUserDTO;
 import br.com.furb.dpm.dpmunidade04.dto.UserDTO;
 import br.com.furb.dpm.dpmunidade04.repository.UserRepository;
 import lombok.AccessLevel;
@@ -29,15 +30,21 @@ class UserControllerImpl implements UserController {
     }
 
     @Override
-    public ResponseEntity<UserDocument> postUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> postUser(@RequestBody PostUserDTO postUserDTO) {
         var userDocument = UserDocument.builder() //
-                .name(userDTO.getName()) //
-                .email(userDTO.getEmail()) //
-                .username(userDTO.getUsername()) //
-                .password(securityController.encodePassword(userDTO.getPassword())) //
+                .name(postUserDTO.getName()) //
+                .email(postUserDTO.getEmail()) //
+                .username(postUserDTO.getUsername()) //
+                .password(securityController.encodePassword(postUserDTO.getPassword())) //
                 .build();
         userDocument = userRepository.save(userDocument);
-        return ResponseEntity.created(UriComponentsBuilder.fromPath("/user/{id}").buildAndExpand(userDocument.getId()).toUri()).body(userDocument);
+        var userDTO = UserDTO.builder() //
+                .id(userDocument.getId()) //
+                .name(userDocument.getName()) //
+                .email(userDocument.getEmail()) //
+                .username(userDocument.getUsername()) //
+                .build();
+        return ResponseEntity.created(UriComponentsBuilder.fromPath("/user/{id}").buildAndExpand(userDocument.getId()).toUri()).body(userDTO);
     }
 
 }

@@ -12,11 +12,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDTO {
+public class CoordinatesDTO {
 
-    String id;
-    String name;
-    String email;
-    String username;
+    double latitude;
+    double longitude;
 
 }

@@ -12,11 +12,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDTO {
+public class PostDeviceUseDTO {
 
-    String id;
-    String name;
-    String email;
-    String username;
+    boolean use;
 
 }

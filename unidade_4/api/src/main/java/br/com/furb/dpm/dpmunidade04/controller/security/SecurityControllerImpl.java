@@ -117,6 +117,7 @@ class SecurityControllerImpl implements SecurityController {
             http.authorizeRequests() //
                     .antMatchers(HttpMethod.POST, "/auth/**").permitAll() //
                     .antMatchers(HttpMethod.POST, "/user").permitAll() //
+                    .antMatchers(HttpMethod.POST, "/device").permitAll() //
                     .anyRequest().authenticated() //
                     .and().csrf().disable() //
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //

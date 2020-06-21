@@ -7,17 +7,20 @@
 #include <TinyGPS.h>
 #include <YunServer.h>
 #include <YunClient.h>
+#include <HttpClient.h>
 
-SoftwareSerial serialGps(6, 7); // RX, TX
+SoftwareSerial serialGps(11, 10); // RX, TX
 TinyGPS gps;
 YunServer server;
 
 String ip;
+String mac;
 float latitude, longitude;
 unsigned long info;
 
 void setup() {
   Bridge.begin();  
+  mac = "B4:21:8A:F8:53:BC";
   server.listenOnLocalhost();
   server.begin();
   serialGps.begin(9600);
@@ -55,6 +58,13 @@ void loop() {
   delay(100); 
 }
 
+void sendIp() {
+  HttpClient client;
+  const String &body = "{\"mac\":\"" + mac + "\",\"ip\":\"" + ip + "\",\"description\":\"Arduino Yun\",\"use\":\"true\"}";
+  client.setHeader("Content-Type: application/json");
+  client.post("http://192.168.2.11:8080/device", &body);
+}
+
 void getIp() {
   Process p;
   String data = "";
@@ -72,6 +82,7 @@ void getIp() {
     String found = data.substring(start, data.indexOf(" ", start));
     if (found != "127.0.0.1") {
       ip = found;
+      sendIp();
     } 
   }
 }

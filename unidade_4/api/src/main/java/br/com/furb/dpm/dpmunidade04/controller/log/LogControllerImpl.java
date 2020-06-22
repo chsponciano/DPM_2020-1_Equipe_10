@@ -21,7 +21,7 @@ import lombok.extern.log4j.Log4j2;
 @RestController
 @AllArgsConstructor(onConstructor_ = { @Autowired })
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-class LogControllerImpl implements LogController {
+public class LogControllerImpl implements LogController {
 
     LogRepository logRepository;
 

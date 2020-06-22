@@ -16,5 +16,6 @@ public class CoordinatesDTO {
 
     double latitude;
     double longitude;
+    String username;
 
 }

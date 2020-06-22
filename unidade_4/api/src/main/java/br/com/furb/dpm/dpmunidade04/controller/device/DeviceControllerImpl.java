@@ -1,9 +1,16 @@
 package br.com.furb.dpm.dpmunidade04.controller.device;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import br.com.furb.dpm.dpmunidade04.controller.log.LogControllerImpl;
+import br.com.furb.dpm.dpmunidade04.controller.motion.MotionChange;
+import br.com.furb.dpm.dpmunidade04.controller.motion.UserMovement;
+import br.com.furb.dpm.dpmunidade04.document.LogDocument;
+import br.com.furb.dpm.dpmunidade04.dto.*;
+import br.com.furb.dpm.dpmunidade04.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,11 +22,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.furb.dpm.dpmunidade04.document.DeviceDocument;
-import br.com.furb.dpm.dpmunidade04.dto.CoordinatesDTO;
-import br.com.furb.dpm.dpmunidade04.dto.DeviceDTO;
-import br.com.furb.dpm.dpmunidade04.dto.PostDeviceDTO;
-import br.com.furb.dpm.dpmunidade04.dto.PostDeviceDescriptionDTO;
-import br.com.furb.dpm.dpmunidade04.dto.PostDeviceUseDTO;
 import br.com.furb.dpm.dpmunidade04.repository.DeviceRepository;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +34,10 @@ import lombok.extern.log4j.Log4j2;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class DeviceControllerImpl implements DeviceController {
 
+    private final String distanceArduinoHost = "http://%s/arduino/distance/%s/%s";
+    private static boolean isInside = false;
     DeviceRepository deviceRepository;
+    LogRepository logRepository;
 
     @Override
     public ResponseEntity<List<DeviceDTO>> getAll() {
@@ -75,16 +80,24 @@ class DeviceControllerImpl implements DeviceController {
 
     @Override
     public void checkLocation(CoordinatesDTO coordinatesDTO) {
-        final String uri = "https://google.com/";
+        this.getAll().getBody().forEach(deviceDTO -> {
+            if (deviceDTO.isUse()) {
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+                HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+                ResponseEntity<String> result = restTemplate.exchange(
+                        String.format(this.distanceArduinoHost, deviceDTO.getIp(), coordinatesDTO.getLatitude(), coordinatesDTO.getLongitude()),
+                        HttpMethod.GET, entity, String.class);
 
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
-
-        ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-        System.out.println(result.getBody());
+                float distance = Float.parseFloat(result.getBody());
+                boolean isInside = distance <= 29.0;
+                if (MotionChange.onChange(new UserMovement(coordinatesDTO, isInside))) {
+                    new LogControllerImpl(logRepository).create(new PostLogDTO(String.format(LogDocument.INTERNAL_LOG,
+                            coordinatesDTO.getUsername(), (isInside) ? "DENTRO" : "FORA", LogDocument.getCurrentDatetime())));
+                }
+            }
+        });
     }
 
     private DeviceDTO toDeviceDTO(DeviceDocument deviceDocument) {
